@@ -5,8 +5,12 @@ use std::collections::BTreeMap;
 use ulid::Ulid;
 
 mod model;
+mod view;
+mod update;
 
-use model::model::*;
+pub use model::*;
+use update::*;
+use view::*;
 
 // ------ ------
 //     Init
@@ -23,89 +27,6 @@ fn init(_: Url, _: &mut impl Orders<Msg>) -> Model {
     }.add_mock_data()
 }
 
-
-// ------ ------
-//    Update
-// ------ ------
-
-enum Msg {
-    UrlChanged(subs::UrlChanged),
-    NewTodoTitleChanged(String),
-
-    // ------ Basic Todo operations ------
-
-    CreateTodo,
-    ToggleTodo(Ulid),
-    RemoveTodo(Ulid),
-    
-    // ------ Bulk operations ------
-
-    CheckOrUncheckAll,
-    ClearCompleted,
-    
-    // ------ Selection ------
-
-    SelectTodo(Option<Ulid>),
-    SelectedTodoTitleChanged(String),
-    SaveSelectedTodo,
-}
-
-
-// `update` describes how to handle each `Msg`.
-fn update(msg: Msg, model: &mut Model, _: &mut impl Orders<Msg>) {
-    match msg {
-        Msg::UrlChanged(subs::UrlChanged(url)) => {
-            log!("UrlChanged", url);
-        }
-        Msg::NewTodoTitleChanged(title) => {
-            log!("NewTodoTitleChanged", title);
-        }
-    
-        // ------ Basic Todo operations ------
-
-        Msg::CreateTodo => {
-            log!("CreateTodo");
-        }
-        Msg::ToggleTodo(id) => {
-            log!("ToggleTodo");
-        }
-        Msg::RemoveTodo(id) => {
-            log!("RemoveTodo");
-        }
-        
-        // ------ Bulk operations ------
-
-        Msg::CheckOrUncheckAll => {
-            log!("CheckOrUncheckAll");
-        }
-        Msg::ClearCompleted => {
-            log!("ClearCompleted");
-        }
-        
-        // ------ Selection ------
-
-        Msg::SelectTodo(opt_id) => {
-            log!("SelectTodo", opt_id);
-        },
-        Msg::SelectedTodoTitleChanged(title) => {
-            log!("SelectedTodoTitleChanged", title);
-        },
-        Msg::SaveSelectedTodo => {
-            log!("SaveSelectedTodo");
-        }
-    }
-}
-
-// ------ ------
-//     View
-// ------ ------
-
-// (Remove the line below once your `Model` become more complex.)
-#[allow(clippy::trivially_copy_pass_by_ref)]
-// `view` describes what to display.
-fn view(model: &Model) -> Vec<Node<Msg>> {
-    raw![include_str!("../template.html")]
-}
 
 // ------ ------
 //     Start
