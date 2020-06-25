@@ -1,5 +1,8 @@
-
-
+use std::collections::BTreeMap;
+use seed::browser::Url;
+use seed::virtual_dom::ElRef;
+use ulid::Ulid;
+use seed::{prelude::*, *};
 
 // ------ ------
 //     Model
@@ -7,26 +10,26 @@
 
 // `Model` describes our app state.
 pub struct Model {
-    todos: BTreeMap<Ulid, Todo>,
-    new_todo_title: String,
-    selected_todo: Option<SelectedTodo>,
-    filter: Filter,
-    base_url: Url,
+    pub todos: BTreeMap<Ulid, Todo>,
+    pub new_todo_title: String,
+    pub selected_todo: Option<SelectedTodo>,
+    pub filter: Filter,
+    pub base_url: Url,
 }
 
-struct Todo {
+pub struct Todo {
     id: Ulid,
     title: String,
     completed: bool,
 }
 
-struct SelectedTodo {
+pub struct SelectedTodo {
     id: Ulid,
     title: String,
     input_element: ElRef<web_sys::HtmlInputElement>,
 }
 
-enum Filter {
+pub enum Filter {
   All,
   Active,
   Completed,
@@ -34,7 +37,7 @@ enum Filter {
 
 // TODO: Remove
 impl Model {
-    fn add_mock_data(mut self) -> Self {
+    pub fn add_mock_data(mut self) -> Self {
         let (id_a, id_b) = (Ulid::new(), Ulid::new());
         
         self.todos.insert(id_a, Todo {
