@@ -40,15 +40,6 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-weight: 300;
-    /*! background: lavenderblush; */
-    /*! background-color: initial; */
-    /*! background: inherit; */
-    /*! background: inherit; */
-    background: #f5f5f5;
-}
-
-.body {
-    background: #f5f5f5;
 }
 
 :focus {
@@ -60,11 +51,11 @@ body {
 }
 
 .totodo {
-    background: rgb(217, 227, 233);
+    background: #fff;
     margin: 130px 0 40px 0;
     position: relative;
-    /*! box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
-                0 25px 50px 0 rgba(0, 0, 0, 0.1); */
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
+                0 25px 50px 0 rgba(0, 0, 0, 0.1);
 }
 
 .totodo input::-webkit-input-placeholder {
@@ -87,12 +78,12 @@ body {
 
 .totodo h1 {
     position: absolute;
-    top: -160px;
+    top: -140px;
     width: 100%;
-    font-size: 100px;
-    font-weight: 300;
+    font-size: 80px;
+    font-weight: 200;
     text-align: center;
-    color: #719fca;
+    color: #b83f45;
     -webkit-text-rendering: optimizeLegibility;
     -moz-text-rendering: optimizeLegibility;
     text-rendering: optimizeLegibility;
@@ -118,7 +109,7 @@ body {
 
 .new-todo {
     padding: 16px 16px 16px 60px;
-    border: darkviolet;
+    border: none;
     background: rgba(0, 0, 0, 0.003);
     box-shadow: inset 0 -2px 1px rgba(0,0,0,0.03);
 }
@@ -127,12 +118,6 @@ body {
     position: relative;
     z-index: 2;
     border-top: 1px solid #e6e6e6;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2),
-    0 8px 0 -3px #f6f6f6,
-    0 9px 1px -3px rgba(0, 0, 0, 0.2),
-    0 16px 0 -6px #f6f6f6,
-    0 17px 2px -6px rgba(0, 0, 0, 0.2);
-    /* box-shadow: 8px 6px 1px rgba(0, 0, 0, 0.1),10px 8px 1px 3px #f6f6f6, 12px 10px 1px 3px rgba(0, 0, 0, 0.1), 14px 16px 0 6px #f6f6f6, 16px 18px 2px 6px rgba(0, 0, 0, 0.2); */
 }
 
 .toggle-all {
@@ -150,7 +135,7 @@ body {
     height: 34px;
     font-size: 0;
     position: absolute;
-    top: -90px;
+    top: -52px;
     left: -13px;
     -webkit-transform: rotate(90deg);
     transform: rotate(90deg);
@@ -256,7 +241,7 @@ body {
     height: 40px;
     margin: auto 0;
     font-size: 30px;
-    color: #9b4c4c;
+    color: #cc9a9a;
     margin-bottom: 11px;
     transition: color 0.2s ease-out;
 }
@@ -286,10 +271,7 @@ body {
     height: 20px;
     text-align: center;
     font-size: 15px;
-    /*! border-top: 1px solid #0f0f0f; */
-    /*! border-block: 2px solid black; */
-    border: 1px solid #65909d96;
-    background: #e2f2f2;
+    border-top: 1px solid #e6e6e6;
 }
 
 .footer:before {
@@ -300,11 +282,11 @@ body {
     left: 0;
     height: 50px;
     overflow: hidden;
-    /* box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2),
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2),
                 0 8px 0 -3px #f6f6f6,
                 0 9px 1px -3px rgba(0, 0, 0, 0.2),
                 0 16px 0 -6px #f6f6f6,
-                0 17px 2px -6px rgba(0, 0, 0, 0.2); */
+                0 17px 2px -6px rgba(0, 0, 0, 0.2);
 }
 
 .todo-count {

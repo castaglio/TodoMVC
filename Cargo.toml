@@ -1,10 +1,10 @@
 [package]
 version = "0.1.0"
-name = "app_name"
+name = "totodo"
 repository = "https://github.com/seed-rs/seed-quickstart"
-authors = ["Your Name <email@address.com>"]
-description = "App Description"
-categories = ["category"]
+authors = ["leo@dabinsi.com"]
+description = "Todo following seed tutorial"
+categories = ["training"]
 license = "MIT"
 readme = "./README.md"
 edition = "2018"
@@ -16,10 +16,14 @@ crate-type = ["cdylib"]
 wasm-bindgen-test = "0.3.13"
 
 [dependencies]
-ulid = "0.3.3"
+serde = "1.0.114"
+strum = "0.18.0"
+strum_macros = "0.18.0"
+ulid = { version = "0.4.0", features = ["serde"] }
 # This commit points to Seed 0.7.0 with important fixes.
 # Replace with `seed = "0.8.0"` (or newer) once released.
-seed = { git = "https://github.com/seed-rs/seed", rev = "0a538f0" }
+# seed = { git = "https://github.com/seed-rs/seed", rev = "0a538f0" }
+seed = { path = "/home/dabinsi/Projects/github/seed" }
 
 [profile.release]
 lto = true

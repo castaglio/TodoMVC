@@ -1,8 +1,13 @@
-use std::collections::BTreeMap;
 use seed::browser::Url;
+use seed::prelude::*;
 use seed::virtual_dom::ElRef;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use strum_macros::EnumIter;
 use ulid::Ulid;
-use seed::{prelude::*, *};
+
+pub const ACTIVE: &str = "active";
+pub const COMPLETED: &str = "completed";
 
 // ------ ------
 //     Model
@@ -10,56 +15,39 @@ use seed::{prelude::*, *};
 
 // `Model` describes our app state.
 pub struct Model {
+    pub base_url: Url,
     pub todos: BTreeMap<Ulid, Todo>,
     pub new_todo_title: String,
     pub selected_todo: Option<SelectedTodo>,
     pub filter: Filter,
-    pub base_url: Url,
 }
 
+#[derive(Deserialize, Serialize)]
 pub struct Todo {
-    id: Ulid,
-    title: String,
-    completed: bool,
+    pub id: Ulid,
+    pub title: String,
+    pub completed: bool,
 }
 
 pub struct SelectedTodo {
-    id: Ulid,
-    title: String,
-    input_element: ElRef<web_sys::HtmlInputElement>,
+    pub id: Ulid,
+    pub title: String,
+    pub input_element: ElRef<web_sys::HtmlInputElement>,
 }
 
+#[derive(Copy, Clone, Eq, PartialEq, EnumIter)]
 pub enum Filter {
-  All,
-  Active,
-  Completed,
+    All,
+    Active,
+    Completed,
 }
 
-// TODO: Remove
-impl Model {
-    pub fn add_mock_data(mut self) -> Self {
-        let (id_a, id_b) = (Ulid::new(), Ulid::new());
-        
-        self.todos.insert(id_a, Todo {
-            id: id_a,
-            title: "I'm todo A".to_owned(),
-            completed: false,
-        });
-
-        self.todos.insert(id_b, Todo {
-            id: id_b,
-            title: "I'm todo B".to_owned(),
-            completed: true,
-        });
-
-        self.new_todo_title = "I'm a new todo title".to_owned();
-
-        self.selected_todo = Some(SelectedTodo {
-            id: id_b,
-            title: "I'm better todo B".to_owned(),
-            input_element: ElRef::new(),
-        });
-        self
+impl From<Url> for Filter {
+    fn from(mut url: Url) -> Self {
+        match url.remaining_hash_path_parts().as_slice() {
+            [ACTIVE] => Self::Active,
+            [COMPLETED] => Self::Completed,
+            _ => Self::All,
+        }
     }
 }
-
