@@ -6,12 +6,15 @@ use std::collections::BTreeMap;
 use strum_macros::EnumIter;
 use ulid::Ulid;
 
+use super::undo::*;
+
 pub const ACTIVE: &str = "active";
 pub const COMPLETED: &str = "completed";
 
 // ------ ------
 //     Model
 // ------ ------
+
 
 // `Model` describes our app state.
 pub struct Model {
@@ -20,13 +23,30 @@ pub struct Model {
     pub new_todo_title: String,
     pub selected_todo: Option<SelectedTodo>,
     pub filter: Filter,
+    pub undo_queue: UndoQueue,
+    pub redo_queue: RedoQueue,
 }
 
-#[derive(Deserialize, Serialize)]
+impl Model {
+    pub fn createtodo(&mut self) {
+        self.todos = self.undo_queue.current();
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct Todo {
     pub id: Ulid,
     pub title: String,
     pub completed: bool,
+    pub markdown: String,
+}
+
+impl Todo {
+    pub fn new(id: Ulid, title: String, completed: bool, markdown: String) -> Todo {
+        Todo {
+            id, title, completed, markdown,
+        }
+    }
 }
 
 pub struct SelectedTodo {

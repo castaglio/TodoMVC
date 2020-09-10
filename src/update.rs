@@ -3,12 +3,12 @@
 use std::convert::TryFrom;
 use std::mem;
 
-use seed::prelude::*;
+use seed::{prelude::*, *};
 use ulid::Ulid;
 
 use super::model::*;
 
-const STORAGE_KEY: &str = "todos-seed";
+const STORAGE_KEY: &str = "lujuul-seed";
 
 // ------ ------
 //    Update
@@ -17,6 +17,8 @@ const STORAGE_KEY: &str = "todos-seed";
 pub enum Msg {
     UrlChanged(subs::UrlChanged),
     NewTodoTitleChanged(String),
+    // NewTodoTitleChangedUndo,
+    // NewTodoTitleChangedRedo,
 
     // ------ Basic Todo operations ------
     CreateTodo,
@@ -31,6 +33,11 @@ pub enum Msg {
     SelectTodo(Option<Ulid>),
     SelectedTodoTitleChanged(String),
     SaveSelectedTodo,
+
+    // ------ Undo/Redo operations ------
+    Undo,
+    Redo,
+
 }
 
 // `update` describes how to handle each `Msg`.
@@ -44,22 +51,56 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             };
         }
         Msg::NewTodoTitleChanged(title) => {
+            log!("new title: {}", title);
+            // let c =  model.new_todo_title_record.apply(Add(title.chars().last().unwrap()));
+            // let _c = match c {
+            //     Ok(applied) => applied,
+            //     Err(error) => log!("Cannot undo because error: {}", error),
+            // };
+            
             model.new_todo_title = title;
         }
+
+        // Msg::NewTodoTitleChangedUndo => {
+        //     log!("doing undo");
+        //     let c = model.new_todo_title_record.undo();
+        //     let _c = match c {
+        //         Ok(undo) => undo,
+        //         Err(error) => log!("Cannot undo because error: {}", error),
+        //     };
+
+        //     model.new_todo_title = model.new_todo_title_record.target().to_string();
+        // }
+
+        // Msg::NewTodoTitleChangedRedo => {
+        //     log!("doing redo");
+        //     log!("before redo target = {}", model.new_todo_title_record.target().to_string().length());
+        //     let c = model.new_todo_title_record.redo();
+        //     let _c = match c {
+        //         Ok(redo) => redo,
+        //         Err(error) => log!("Cannot redo because error: {}", error),
+        //     };
+        //     log!("c = {}", _c);
+        //     log!("after redo target = {}", model.new_todo_title_record.target().to_string());
+        //     model.new_todo_title = model.new_todo_title_record.target().to_string();
+        // }
 
         // ------ Basic Todo operations ------
         Msg::CreateTodo => {
             let title = model.new_todo_title.trim();
             if not(title.is_empty()) {
+                log!("New todo: {}", title);
+
                 let id = Ulid::new();
-                model.todos.insert(
-                    id,
-                    Todo {
-                        id,
-                        title: title.to_owned(),
-                        completed: false,
-                    },
-                );
+                let todo = Todo::new(id, title.to_owned(), false, String::new());
+
+                let mut todos_owned = model.todos.to_owned();
+                todos_owned.insert(id, todo);
+                model.undo_queue.push(todos_owned);
+                let new_todos = model.undo_queue.current();
+                model.undo_queue.push(model.todos.to_owned());
+                model.todos = new_todos;
+
                 model.new_todo_title.clear();
             }
         }
@@ -69,7 +110,10 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             }
         }
         Msg::RemoveTodo(id) => {
-            model.todos.remove(&id);
+            let mut todos_owned = model.todos.to_owned();
+            todos_owned.remove(&id);
+            model.undo_queue.push(todos_owned);
+            model.todos = model.undo_queue.current();
         }
 
         // ------ Bulk operations ------
@@ -124,6 +168,18 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                     todo.title = selected_todo.title;
                 }
             }
+        }
+
+        Msg::Undo => {
+            let todos_owned = model.todos.to_owned();
+            model.redo_queue.push(todos_owned);
+            model.todos = model.undo_queue.current();
+            model.undo_queue.undo();
+            
+        }
+        Msg::Redo => {
+            model.undo_queue.redo();
+            model.todos = model.redo_queue.current();
         }
     }
     LocalStorage::insert(STORAGE_KEY, &model.todos).expect("save todos to LocalStorage");

@@ -3,6 +3,8 @@ use std::collections::BTreeMap;
 use strum::IntoEnumIterator;
 use ulid::Ulid;
 
+// extern crate web_sys;
+
 use super::model::*;
 use super::update::*;
 use super::urls::*;
@@ -17,11 +19,28 @@ const ESCAPE_KEY: &str = "Escape";
 pub fn view(model: &Model) -> Vec<Node<Msg>> {
     nodes![
         view_header(&model.new_todo_title),
-        IF!(not(model.todos.is_empty()) => vec![
-            div![
-                C!["body"],
-                br![],br![]
+        div![
+            button![
+                C!["todo-button"],
+                i![
+                    C!["fa fa-redo"],
+                ],
+                style![St::Float => "right"],
+                ev(Ev::Click, move |_| Msg::Redo),
             ],
+            button![
+                C!["todo-button"],
+                i![
+                    C!["fa fa-undo"],
+                ],
+                style![St::Float => "right"],
+                ev(Ev::Click, move |_| Msg::Undo),
+            ],
+        ],
+        div![C!["body"],
+            br![],br![]
+        ],
+        IF!(not(model.todos.is_empty()) => vec![
             view_main(&model.todos, model.selected_todo.as_ref(), model.filter),
             div![
                 C!["body"],
@@ -124,7 +143,9 @@ fn view_todo_list(
                         &todo.title,
                         ev(Ev::DblClick, move |_| Msg::SelectTodo(Some(id))),
                     ],
-                    button![C!["destroy"], ev(Ev::Click, move |_| Msg::RemoveTodo(id)),],
+                    button![
+                        C!["destroy"], 
+                        ev(Ev::Click, move |_| Msg::RemoveTodo(id)),],
                 ],
                 IF!(is_selected => {
                     let selected_todo = selected_todo.unwrap();

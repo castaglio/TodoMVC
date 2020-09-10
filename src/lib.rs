@@ -6,12 +6,14 @@ mod model;
 mod update;
 mod urls;
 mod view;
+mod undo;
 
 pub use model::*;
 use update::*;
 use view::*;
+use undo::*;
 
-const STORAGE_KEY: &str = "todos-seed";
+const STORAGE_KEY: &str = "lujuul-seed";
 
 // ------ ------
 //     Init
@@ -26,7 +28,9 @@ fn init(url: Url, orders: &mut impl Orders<Msg>) -> Model {
         new_todo_title: String::new(),
         selected_todo: None,
         filter: Filter::from(url),
-    }
+        undo_queue: UndoQueue::default(),
+        redo_queue: RedoQueue::default(),
+    }   
 }
 
 // ------ ------

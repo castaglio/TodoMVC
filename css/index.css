@@ -167,10 +167,25 @@ body {
     color: #737373;
 }
 
+.todo-button {
+    border: none;
+    color: #719fca;
+    padding: 12px 16px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.todo-button:hover {
+    color: white;
+    background-color: #719fca;
+}
+
 .todo-list {
     margin: 0;
     padding: 0;
     list-style: none;
+    height: 50vh;
+    overflow: auto;
 }
 
 .todo-list li {
@@ -288,8 +303,9 @@ body {
     font-size: 15px;
     /*! border-top: 1px solid #0f0f0f; */
     /*! border-block: 2px solid black; */
-    border: 1px solid #65909d96;
-    background: #e2f2f2;
+    /* border: 1px solid #65909d96; */
+    background: rgb(217, 227, 233);
+    box-shadow: 2px 2px 1px gray;
 }
 
 .footer:before {
