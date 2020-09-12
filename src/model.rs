@@ -25,6 +25,8 @@ pub struct Model {
     pub filter: Filter,
     pub undo_queue: UndoQueue,
     pub redo_queue: RedoQueue,
+    pub undo_stack: UndoStack,
+    pub redo_stack: RedoStack,
 }
 
 impl Model {

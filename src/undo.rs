@@ -3,6 +3,82 @@ use std::collections::BTreeMap;
 use ulid::Ulid;
 
 use super::model::*;
+use super::update::*;
+
+
+pub trait TTarget {
+}
+
+impl TTarget for Todo {
+
+}
+
+impl TTarget for Ulid {
+
+}
+
+impl TTarget for String {
+
+}
+
+// pub enum Target {
+//     Todo (Todo),
+//     String(String),
+//     Ulid(Ulid),
+// }
+
+pub struct Action {
+    pub msg: Msg,
+    pub target: dyn TTarget,
+}
+
+//impl<T> TTarget for Vec<T> {}
+
+#[derive(Default)]
+pub struct UndoStack {
+    stack: Vec<Box<Action>>,
+    index: usize,
+}
+
+impl UndoStack {
+
+    pub fn push(&mut self, action: Box<Action> ) {
+        log!("Size before push: {}", self.stack.len());
+        self.stack.push(action);
+        self.index += 1;
+        log!("Size after push: {}", self.stack.len());
+    }
+
+    pub fn pop(&mut self) -> Option<Box<Action>> {
+        self.stack.pop()
+    }
+
+    // pub fn pop(&mut self) -> Option<Box<Action>> {
+    //     let Some(action_undo) = self.stack.pop();
+    //     match action_undo.msg {
+    //         Msg::CreateTodo => {
+    //             let target = &action_undo.target;
+    //             match target {
+    //                 Target::Todo(todo) => {
+    //                     let new_action = Box::new(Action {
+    //                                                         msg: Msg::RemoveTodo(todo.id),
+    //                                                         target: Ulid(todo.id),
+    //                                                 });
+    //                     Some(new_action)
+    //                 }
+    //                 _ => None
+    //             }
+    //         }
+    //         _ => None
+    //     }
+    // }
+}
+
+#[derive(Default)]
+pub struct RedoStack {
+    stack: Vec<Box<Action>>,
+    index: usize,
+}
 
 #[derive(Default)]
 pub struct UndoQueue {

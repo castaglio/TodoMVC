@@ -30,6 +30,8 @@ fn init(url: Url, orders: &mut impl Orders<Msg>) -> Model {
         filter: Filter::from(url),
         undo_queue: UndoQueue::default(),
         redo_queue: RedoQueue::default(),
+        undo_stack: UndoStack::default(),
+        redo_stack: RedoStack::default(),
     }   
 }
 

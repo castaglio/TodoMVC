@@ -7,6 +7,7 @@ use seed::{prelude::*, *};
 use ulid::Ulid;
 
 use super::model::*;
+use super::undo::*;
 
 const STORAGE_KEY: &str = "lujuul-seed";
 
@@ -94,6 +95,13 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
                 let id = Ulid::new();
                 let todo = Todo::new(id, title.to_owned(), false, String::new());
 
+                let action = Action {
+                    msg: Msg::CreateTodo,
+                    target: Target::Todo(todo),
+                };
+
+                model.undo_stack.push(action);
+
                 let mut todos_owned = model.todos.to_owned();
                 todos_owned.insert(id, todo);
                 model.undo_queue.push(todos_owned);
@@ -171,6 +179,8 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
         }
 
         Msg::Undo => {
+            undo(model);
+
             let todos_owned = model.todos.to_owned();
             model.redo_queue.push(todos_owned);
             model.todos = model.undo_queue.current();
@@ -183,4 +193,20 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
         }
     }
     LocalStorage::insert(STORAGE_KEY, &model.todos).expect("save todos to LocalStorage");
+}
+
+fn undo (model: &mut Model) {
+    let Some(action) = model.undo_stack.pop();
+
+    match action.msg {
+        Msg::CreateTodo => {
+            let todo = (&action.target);
+            let removed = model.todos.remove(action.target.id);
+            model.redo_stack
+
+        }
+
+        _ => println!("nothing")
+    }
+
 }
