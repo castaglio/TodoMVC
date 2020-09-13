@@ -26,6 +26,9 @@ pub fn view(model: &Model) -> Vec<Node<Msg>> {
                     C!["fa fa-redo"],
                 ],
                 style![St::Float => "right"],
+                attrs! {
+                    At::Disabled =>  if model.redo_stack.size() == 0 { true.as_at_value() } else { false.as_at_value() }
+                },
                 ev(Ev::Click, move |_| Msg::Redo),
             ],
             button![
@@ -34,6 +37,9 @@ pub fn view(model: &Model) -> Vec<Node<Msg>> {
                     C!["fa fa-undo"],
                 ],
                 style![St::Float => "right"],
+                attrs! {
+                    At::Disabled =>  if model.undo_stack.size() == 0 { true.as_at_value() } else { false.as_at_value() }
+                },
                 ev(Ev::Click, move |_| Msg::Undo),
             ],
         ],

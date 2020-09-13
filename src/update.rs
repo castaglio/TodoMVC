@@ -52,62 +52,23 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             };
         }
         Msg::NewTodoTitleChanged(title) => {
-            log!("new title: {}", title);
-            // let c =  model.new_todo_title_record.apply(Add(title.chars().last().unwrap()));
-            // let _c = match c {
-            //     Ok(applied) => applied,
-            //     Err(error) => log!("Cannot undo because error: {}", error),
-            // };
-            
             model.new_todo_title = title;
         }
-
-        // Msg::NewTodoTitleChangedUndo => {
-        //     log!("doing undo");
-        //     let c = model.new_todo_title_record.undo();
-        //     let _c = match c {
-        //         Ok(undo) => undo,
-        //         Err(error) => log!("Cannot undo because error: {}", error),
-        //     };
-
-        //     model.new_todo_title = model.new_todo_title_record.target().to_string();
-        // }
-
-        // Msg::NewTodoTitleChangedRedo => {
-        //     log!("doing redo");
-        //     log!("before redo target = {}", model.new_todo_title_record.target().to_string().length());
-        //     let c = model.new_todo_title_record.redo();
-        //     let _c = match c {
-        //         Ok(redo) => redo,
-        //         Err(error) => log!("Cannot redo because error: {}", error),
-        //     };
-        //     log!("c = {}", _c);
-        //     log!("after redo target = {}", model.new_todo_title_record.target().to_string());
-        //     model.new_todo_title = model.new_todo_title_record.target().to_string();
-        // }
 
         // ------ Basic Todo operations ------
         Msg::CreateTodo => {
             let title = model.new_todo_title.trim();
             if not(title.is_empty()) {
-                log!("New todo: {}", title);
-
                 let id = Ulid::new();
                 let todo = Todo::new(id, title.to_owned(), false, String::new());
 
                 let action = Action {
                     msg: Msg::CreateTodo,
-                    target: Target::Todo(todo),
+                    target: Target::Todo(todo.clone()),
                 };
 
+                model.todos.insert(id, todo);
                 model.undo_stack.push(action);
-
-                let mut todos_owned = model.todos.to_owned();
-                todos_owned.insert(id, todo);
-                model.undo_queue.push(todos_owned);
-                let new_todos = model.undo_queue.current();
-                model.undo_queue.push(model.todos.to_owned());
-                model.todos = new_todos;
 
                 model.new_todo_title.clear();
             }
@@ -118,10 +79,10 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             }
         }
         Msg::RemoveTodo(id) => {
-            let mut todos_owned = model.todos.to_owned();
-            todos_owned.remove(&id);
-            model.undo_queue.push(todos_owned);
-            model.todos = model.undo_queue.current();
+            model.undo_stack.push(Action {
+                msg: Msg::RemoveTodo(id),
+                target: Target::Todo(model.todos.remove(&id).unwrap())
+            });
         }
 
         // ------ Bulk operations ------
@@ -178,35 +139,72 @@ pub fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
             }
         }
 
+        // ------ Undo/Redo operations ------
         Msg::Undo => {
             undo(model);
-
-            let todos_owned = model.todos.to_owned();
-            model.redo_queue.push(todos_owned);
-            model.todos = model.undo_queue.current();
-            model.undo_queue.undo();
-            
         }
         Msg::Redo => {
-            model.undo_queue.redo();
-            model.todos = model.redo_queue.current();
+            redo(model);
         }
     }
     LocalStorage::insert(STORAGE_KEY, &model.todos).expect("save todos to LocalStorage");
 }
 
+
+// ------ Undo/Redo functions ------
 fn undo (model: &mut Model) {
-    let Some(action) = model.undo_stack.pop();
-
-    match action.msg {
-        Msg::CreateTodo => {
-            let todo = (&action.target);
-            let removed = model.todos.remove(action.target.id);
-            model.redo_stack
-
+    if let Some(action) = model.undo_stack.pop() {
+        match action.msg {
+            Msg::CreateTodo => {
+                if let Target::Todo(todo) = action.target {
+                    if let Some(createdtodo) = model.todos.remove(&todo.id) {
+                        model.redo_stack.push(Action {
+                            msg: Msg::RemoveTodo(createdtodo.id),
+                            target: Target::Todo(createdtodo)
+                        } );
+                    }
+                }
+            }
+            Msg::RemoveTodo(id) => {
+                if let Target::Todo(todo) = action.target {
+                    model.redo_stack.push(Action {
+                        msg: Msg::CreateTodo,
+                        target: Target::Todo(todo.clone())
+                    });
+                    model.todos.insert(id, todo);
+                }
+            }
+    
+            _ => log!("nothing to undo")
         }
-
-        _ => println!("nothing")
     }
-
 }
+
+fn redo (model: &mut Model) {
+    if let Some(action) = model.redo_stack.pop() {
+        match action.msg {
+            Msg::CreateTodo => {
+                if let Target::Todo(todo) = action.target {
+                    if let Some(createdtodo) = model.todos.remove(&todo.id) {
+                        model.undo_stack.push(Action {
+                            msg: Msg::RemoveTodo(createdtodo.id),
+                            target: Target::Todo(createdtodo)
+                        } );
+                    }
+                }
+            }
+            Msg::RemoveTodo(id) => {
+                if let Target::Todo(todo) = action.target {
+                    model.undo_stack.push(Action {
+                        msg: Msg::CreateTodo,
+                        target: Target::Todo(todo.clone())
+                    });
+                    model.todos.insert(id, todo);
+                }
+            }
+
+            _ => log!("nothin to redo")
+        }
+    }
+}
+

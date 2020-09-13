@@ -23,16 +23,8 @@ pub struct Model {
     pub new_todo_title: String,
     pub selected_todo: Option<SelectedTodo>,
     pub filter: Filter,
-    pub undo_queue: UndoQueue,
-    pub redo_queue: RedoQueue,
-    pub undo_stack: UndoStack,
-    pub redo_stack: RedoStack,
-}
-
-impl Model {
-    pub fn createtodo(&mut self) {
-        self.todos = self.undo_queue.current();
-    }
+    pub undo_stack: Stack,
+    pub redo_stack: Stack,
 }
 
 #[derive(Deserialize, Serialize, Clone, Default)]
